@@ -1,5 +1,5 @@
 geoLocate = function() {
-	var myLocation;
+	var deviceLocation;
 	var locationIcon = new google.maps.MarkerImage("/img/marker-location.png", new google.maps.Size(40, 40), new google.maps.Point(0, 0), new google.maps.Point(20, 20), new google.maps.Size(40, 40));
 
 	var browserSupportFlag = new Boolean();
@@ -8,35 +8,24 @@ geoLocate = function() {
 				// Try W3C Geolocation (Preferred)
 				browserSupportFlag = true;
 				navigator.geolocation.getCurrentPosition(function(position) {
-					myLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
-					$.ajax({
-						type: 'post',
-						url: '/script/process-request.php',
-						data: {
-							lat: position.coords.latitude,
-							lng: position.coords.longitude
-						},
-						success: function(data) {
-							//							console.log(data);
-						}
-					});
-					callback(myLocation);
+					deviceLocation = new google.maps.LatLng(position.coords.latitude, position.coords.longitude);
+					return deviceLocation;
 				}, function() {
-					loading.done("Couldn't find you, try again.");
-					myLocation = "Unknown";
+					alert("Couldn't find you, try again.");
+					deviceLocation = "Unknown";
 				});
 			} else {
 				// Browser doesn't support Geolocation
 				browserSupportFlag = false;
 				if (browserSupportFlag == true) {
-					loading.done("Couldn't find you, try again.");
-					myLocation = "Unknown";
+					alert("Couldn't find you, try again.");
+					deviceLocation = "Unknown";
 				} else {
-					loading.done("Your device doesn't support geolocation.");
-					myLocation = "Unknown";
+					alert("Your device doesn't support geolocation.");
+					deviceLocation = "Unknown";
 				}
 			}
-			return myLocation;
+			return deviceLocation;
 		};
 
 	var radiusOverlay = new google.maps.Circle({

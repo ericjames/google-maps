@@ -1,0 +1,33 @@
+<script type="text/javascript">
+
+//stop location - the radii end point
+var x1 = 44.9631;
+var y1 = -93.2492;
+
+//bus location from the southeast - the circle center
+var x2 = 44.95517;
+var y2 = -93.2427;
+
+var radians = getAtan2((y1 - y2), (x1 - x2));
+
+function getAtan2(y, x) {
+    return Math.atan2(y, x);
+}
+
+$("#output").text(radians);
+var newdeg = radians * (180 / Math.PI);
+
+$("#deg").append(newdeg);
+
+var coordNames = ["N", "NE", "E", "SE", "S", "SW", "W", "NW", "N"];
+var directionid = Math.round(newdeg / 45);
+if (directionid < 0) {
+    directionid = directionid + 8;
+}
+
+$("#dir").append("The vehicle is moving " + coordNames[directionid]);
+</script>
+
+<div id="output"></div>
+<div id="deg"></div>
+<div id="dir"></div>

@@ -1,0 +1,180 @@
+<!--
+Marker Multiple Toggle Example Using Google Maps Javascript Library V3
+August 20, 2016
+efwjames.com
+Released under GNU General Public License v3.0 - Freely share and share freely
+This code set is dependent only on Google Maps and uses plain JavaScript
+-->
+
+<html>
+<head>
+<title>Marker Multiple Toggle Example</title>
+
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?sensor=false"></script>
+
+    <script type="text/javascript">
+    /*
+    // Instructional simple procedural JavaScript:
+    // This JS is structured for novice users in which the script supplies all data layers
+    // Typically these are light weight one-off apps that have no AJAX call
+    // Or you may use server-side includes to generate the script/page on the fly
+    // This means you can spell out the data you want, and how you want it changed
+    */
+
+    // Our data source object in json format
+    // Each marker is an object in an array
+    var markerJson = [
+        {
+            "name": "Urban Bean Coffee",
+            "coordinates": {
+                "lat": 44.958813,
+                "lng": -93.287918
+            }
+        },
+        {
+            "name": "Spyhouse Coffee",
+            "coordinates": {
+                "lat": 44.998846,
+                "lng": -93.246241
+            }
+        },
+        {
+            "name": "Blue Moon",
+            "coordinates": {
+                "lat": 44.948480,
+                "lng": -93.216707
+            }
+        }
+    ];
+
+    // Our control instructions in json format
+    // This specifies how markers are to be grouped
+    var controlJson = {
+
+
+    }
+
+    // Set a global variable for map
+    var map;
+
+    // Setup a listener to load the map via Google
+    google.maps.event.addDomListener(window, 'load', initializeMap);
+
+    /* Google Maps Related Functions */
+
+    // Initialize our goo
+    function initializeMap() {
+        var options = {
+            center: {
+                lat: 44.9812,
+                lng: -93.2687
+            },
+            zoom: 13,
+            mapTypeId: google.maps.MapTypeId.ROADMAP
+        }
+        map = new google.maps.Map(document.getElementById("map_canvas"), options);
+
+        // Create markers into DOM
+        createMarkers(markerJson);
+
+        // Create controls dynamically after parsing json
+        createControls(markerJson);
+    };
+
+    // Instantiate markers in the background and pass it back to the json object
+    function createMarkers(markerJson) {
+        for (var id in markerJson) {
+            var shop = markerJson[id];
+            var marker = new google.maps.Marker({
+                map: map,
+                position: shop.coordinates,
+                title: shop.name,
+                animation: google.maps.Animation.DROP
+            });
+
+            // This attaches unique infowindows to each marker
+            // You could otherwise do a global infowindow var and have it overwrite itself
+            marker.infowindow = new google.maps.InfoWindow({
+                content: "This coffeeshop is called " + shop.name
+            });
+
+            marker.addListener('click', function() {
+                this.infowindow.open(map, this);
+            });
+
+            shop.marker = marker;
+
+        }
+    };
+
+    // In this example create the controls dynamically with all checked, obj is each "coffee" listing
+    function createControls(markerJson) {
+        var html = "";
+        for (var id in markerJson) {
+            var shop = markerJson[id];
+            html += '<li><a class="selected" href="#" id="' + id + '" onclick="toggleControl(this); return false"><input onclick="inputClick(this)" type="checkbox" checked id="' + id + '" />' + shop.name + '</a></li>';
+        }
+        document.getElementById("controls").innerHTML = html;
+    };
+
+    // Toggle class, checkbox state, and marker visibility
+    function toggleControl(control) {
+        var checkbox = control.getElementsByTagName("input")[0];
+        var shop = markerJson[control.id];
+        if (checkbox.checked == true) {
+            checkbox.checked = false;
+            control.className = "normal";
+            shop.marker.setVisible(false); // If you have hundreds of markers use setMap(map)
+        } else {
+            checkbox.checked = true;
+            control.className = "selected";
+            shop.marker.setVisible(true); // Similarly use setMap(null)
+        }
+    };
+
+    // Cleanup function, resets controls, hides all markers, does not destroy
+    function removeAll() {
+        for (var id in markerJson) {
+            var shop = markerJson[id];
+            shop.marker.setVisible(false);
+            document.getElementById(id).className = "normal";
+            document.getElementById(id).getElementsByTagName("input")[0].checked = false;
+        }
+    };
+
+    // In this case we are keeping the input box for accessibility purposes, so we bubble up the click event to the parent control
+    function inputClick(input) {
+        input.parentElement.click();
+    };
+
+    </script>
+
+    <style type="text/css">
+    body { margin: 0; padding: 0; font: 100 1em/1em "Helvetica Neue"; letter-spacing: 0.05em;}
+    .container { position: relative; margin-top: 50px; }
+    #toggle_box { position: absolute; top: 100px; right: 30px; padding: 1em; background: #fff; z-index: 5; box-shadow: 0 5px 10px #777 }
+    #map_canvas { width: 100%; height: 600px; }
+    #controls, #controls li { margin: 0; padding: 0; list-style: none; }
+    #toggle_box a { display: block; color: #222; text-decoration: none; border-left: 2px solid #ccc; border-radius: 4px; box-shadow: inset 0 -2em 3em #ddd; padding: 1em; margin-bottom: 0.25em;  transition: all 400ms ease-in-out; }
+    #toggle_box a:hover { background: #aaa; border-color: #555;}
+    #controls input { border: 1px solid #888; }
+    #controls a.selected { color: #fff; background: #888; border-color: #ff0000; box-shadow: none;}
+    h1 { font: 200 1.2em/1em "Helvetica Neue";}
+    </style>
+
+</head>
+<body>
+
+<div class="container">
+    <div id="map_canvas"></div>
+
+    <div id="toggle_box">
+        <h1>My Favorite Coffee Shops</h1>
+        <ul id="controls">
+        </ul>
+        <a href="#" onclick="removeAll(); return false;">Remove All Markers</a>
+    </div>
+</div>
+
+</body>
+</html>
